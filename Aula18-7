@@ -1,0 +1,26 @@
+const express = require('express');
+const Product = require('../models/Product');
+const router = express.Router();
+const axios = require('axios');
+
+// Importa produtos da API
+router.get('/import', async (req, res) => {
+    const response = await axios.get('https://fakestoreapi.com/products');
+    const products = response.data.map(product => ({
+        nome: product.title,
+        descricao: product.description,
+        preco: product.price,
+        disponibilidade: true
+    }));
+    
+    await Product.insertMany(products);
+    res.status(201).json({ message: 'Produtos importados com sucesso!' });
+});
+
+// Listar produtos
+router.get('/', async (req, res) => {
+    const products = await Product.find();
+    res.json(products);
+});
+
+module.exports = router;
